@@ -151,100 +151,59 @@ def utility(board):
     else:
       return 0
 
-actions_explored = 0
-
 
 def minimax(board):
-    """
-    Returns the optimal action for the current player on the board.
+    if terminal(board):
+      return None
 
-    'X' Player is trying to maximise the score, 'O' Player is trying to minimise it
-    """
+    if player(board) == 'X':
+      best_move = max_player(board)[1]
+      return best_move
+    else:
+      best_move = min_player(board)[1]
+      return best_move
 
-    global actions_explored
-    actions_explored = 0
+def max_player(board, best_min = 10):
 
-    def max_player(board, best_min = 10):
-      """ Helper function to maximise score for 'X' player.
-          Uses alpha-beta pruning to reduce the state space explored.
-          best_min is the best result
-      """
-
-      global actions_explored
-
-      # If the game is over, return board value
       if terminal(board):
         return (utility(board), None)
 
-      # Else pick the action giving the max value when min_player plays optimally
       value = -10
       best_action = None
 
-
-      # Get set of actions and then select a random one until list is empty:
       action_set = actions(board)
 
       while len(action_set) > 0:
         action = random.choice(tuple(action_set))
         action_set.remove(action)
 
-        # A-B Pruning skips calls to min_player if lower result already found:
         if best_min <= value:
           break
-
-        actions_explored += 1
         min_player_result = min_player(result(board, action), value)
         if min_player_result[0] > value:
           best_action = action
           value = min_player_result[0]
 
       return (value, best_action)
+      
 
-
-    def min_player(board, best_max = -10):
-      """ Helper function to minimise score for 'O' player """
-
-      global actions_explored
-
-      # If the game is over, return board value
+def min_player(board, best_max = -10):
       if terminal(board):
         return (utility(board), None)
 
-      # Else pick the action giving the min value when max_player plays optimally
       value = 10
       best_action = None
 
-      # Get set of actions and then select a random one until list is empty:
       action_set = actions(board)
 
       while len(action_set) > 0:
         action = random.choice(tuple(action_set))
         action_set.remove(action)
-
-        # A-B Pruning skips calls to max_player if higher result already found:
         if best_max >= value:
           break
-
-        actions_explored += 1
         max_player_result = max_player(result(board, action), value)
         if max_player_result[0] < value:
           best_action = action
           value = max_player_result[0]
 
       return (value, best_action)
-
-
-    # If the board is terminal, return None:
-    if terminal(board):
-      return None
-
-    if player(board) == 'X':
-      print('AI is exploring possible actions...')
-      best_move = max_player(board)[1]
-      print('Actions explored by AI: ', actions_explored)
-      return best_move
-    else:
-      print('AI is exploring possible actions...')
-      best_move = min_player(board)[1]
-      print('Actions explored by AI: ', actions_explored)
-      return best_move
